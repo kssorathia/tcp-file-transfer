@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module transmitter</title>
+</head><body>
+    <p><span class="code">TCP&nbsp;File&nbsp;Transmitter<br>
+&nbsp;<br>
+This&nbsp;script&nbsp;allows&nbsp;sending&nbsp;and&nbsp;receiving&nbsp;files&nbsp;over&nbsp;TCP&nbsp;with&nbsp;support&nbsp;for:<br>
+-&nbsp;Chunked&nbsp;transfers<br>
+-&nbsp;Multithreaded&nbsp;receiving&nbsp;(1&nbsp;thread&nbsp;per&nbsp;connection)<br>
+-&nbsp;File&nbsp;integrity&nbsp;validation&nbsp;via&nbsp;SHA256<br>
+-&nbsp;ACK/NACK-based&nbsp;error&nbsp;feedback&nbsp;and&nbsp;retry&nbsp;logic<br>
+-&nbsp;Enhancements&nbsp;-TBD:&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Logging&nbsp;-&nbsp;DEBUG/INFO/WARN/ERROR&nbsp;&nbsp;-&nbsp;JSON&nbsp;format,&nbsp;output&nbsp;to&nbsp;file&nbsp;or&nbsp;DB<br>
+&nbsp;&nbsp;&nbsp;&nbsp;--resume&nbsp;option&nbsp;to&nbsp;resume&nbsp;partial&nbsp;tansfers<br>
+&nbsp;<br>
+Usage:<br>
+&nbsp;<br>
+Start&nbsp;receiver:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;python3&nbsp;transmitter.py&nbsp;recv&nbsp;&lt;bind_ip&gt;&nbsp;&lt;port&gt;<br>
+Example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;python3&nbsp;transmitter.py&nbsp;recv&nbsp;0.0.0.0&nbsp;9000<br>
+&nbsp;<br>
+Send&nbsp;a&nbsp;file:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;python3&nbsp;transmitter.py&nbsp;send&nbsp;&lt;filename&gt;&nbsp;&lt;receiver_ip&gt;&nbsp;&lt;port&gt;<br>
+Example:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;python3&nbsp;transmitter.py&nbsp;send&nbsp;bigfile.zip&nbsp;192.168.1.10&nbsp;9000<br>
+&nbsp;<br>
+Parallel&nbsp;file&nbsp;transfers:<br>
+-&nbsp;You&nbsp;can&nbsp;launch&nbsp;multiple&nbsp;sender&nbsp;instances&nbsp;in&nbsp;parallel:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;python3&nbsp;transmitter.py&nbsp;send&nbsp;file1&nbsp;192.168.1.10&nbsp;9000&nbsp;&amp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;python3&nbsp;transmitter.py&nbsp;send&nbsp;file2&nbsp;192.168.1.10&nbsp;9000&nbsp;&amp;<br>
+-&nbsp;The&nbsp;receiver&nbsp;handles&nbsp;each&nbsp;in&nbsp;its&nbsp;own&nbsp;thread.<br>
+&nbsp;<br>
+Notes:<br>
+-&nbsp;Each&nbsp;sender&nbsp;runs&nbsp;in&nbsp;a&nbsp;separate&nbsp;process/thread&nbsp;and&nbsp;transfers&nbsp;a&nbsp;single&nbsp;file.<br>
+-&nbsp;Receiver&nbsp;can&nbsp;accept&nbsp;multiple&nbsp;connections&nbsp;in&nbsp;parallel.<br>
+-&nbsp;If&nbsp;the&nbsp;receiver&nbsp;crashes,&nbsp;the&nbsp;`.part`&nbsp;file&nbsp;is&nbsp;preserved.<br>
+-&nbsp;Resume&nbsp;logic&nbsp;is&nbsp;in&nbsp;place&nbsp;on&nbsp;receiver,&nbsp;but&nbsp;sender&nbsp;does&nbsp;not&nbsp;yet&nbsp;support&nbsp;offset&nbsp;negotiation.</span></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="argparse.html">argparse</a><br>
+<a href="hashlib.html">hashlib</a><br>
+</td><td class="multicolumn"><a href="os.html">os</a><br>
+<a href="socket.html">socket</a><br>
+</td><td class="multicolumn"><a href="struct.html">struct</a><br>
+<a href="threading.html">threading</a><br>
+</td><td class="multicolumn"><a href="time.html">time</a><br>
+</td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor functions-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Functions</strong></td></tr>
+    
+<tr><td class="decor functions-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl><dt><a name="-calculate_sha256"><strong>calculate_sha256</strong></a>(filepath)</dt><dd><span class="code">Compute&nbsp;the&nbsp;SHA256&nbsp;checksum&nbsp;of&nbsp;a&nbsp;file&nbsp;in&nbsp;chunks.</span></dd></dl>
+ <dl><dt><a name="-handle_client"><strong>handle_client</strong></a>(conn, addr)</dt><dd><span class="code">Handle&nbsp;incoming&nbsp;connection&nbsp;and&nbsp;receive&nbsp;a&nbsp;file&nbsp;from&nbsp;the&nbsp;client.</span></dd></dl>
+ <dl><dt><a name="-main"><strong>main</strong></a>()</dt></dl>
+ <dl><dt><a name="-sanitize_filename"><strong>sanitize_filename</strong></a>(filename)</dt><dd><span class="code">Ensure&nbsp;only&nbsp;the&nbsp;base&nbsp;filename&nbsp;is&nbsp;used&nbsp;to&nbsp;prevent&nbsp;path&nbsp;traversal.</span></dd></dl>
+ <dl><dt><a name="-send_file"><strong>send_file</strong></a>(filename, ip, port)</dt><dd><span class="code">Send&nbsp;a&nbsp;file&nbsp;to&nbsp;the&nbsp;specified&nbsp;IP&nbsp;and&nbsp;port,&nbsp;with&nbsp;retries&nbsp;and&nbsp;ACK/NACK&nbsp;verification.</span></dd></dl>
+ <dl><dt><a name="-start_receiver"><strong>start_receiver</strong></a>(ip, port)</dt><dd><span class="code">Start&nbsp;a&nbsp;receiver&nbsp;socket&nbsp;and&nbsp;listen&nbsp;for&nbsp;incoming&nbsp;file&nbsp;transfers.</span></dd></dl>
+</td></tr></table><p>
+<table class="section">
+<tr class="decor data-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Data</strong></td></tr>
+    
+<tr><td class="decor data-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><strong>ACK</strong> = b'\x06'<br>
+<strong>CHUNK_SIZE</strong> = 4096<br>
+<strong>HEADER_FORMAT</strong> = '!I256sQ32s'<br>
+<strong>HEADER_SIZE</strong> = 300<br>
+<strong>MAX_RETRIES</strong> = 3<br>
+<strong>NACK</strong> = b'\x15'<br>
+<strong>REASON_CODES</strong> = {b'CHK': 'Checksum mismatch', b'DSK': 'Disk write failure', b'HDR': 'Header malformed or invalid', b'UNK': 'Unknown receiver error'}<br>
+<strong>RETRY_DELAY</strong> = 2</td></tr></table>
+</body></html>
